@@ -9,8 +9,15 @@ body {
     max-width: calc(240px* 6 + 35px);
     text-align: center;
 }
+.img-area {
+    image-rendering: pixelated;
+    height: 94px;
+    text-align: center;
+}
 .api-img {
-	width: 35%;
+    image-rendering: pixelated;
+	height: 94px;
+    height: 94px;
 }
 .item, .channel-info.new-colorSet {
     width: calc(100% - 6px);
@@ -148,7 +155,7 @@ button:hover, button:active {
 }
 .mabibase-img{
 	position: relative;
-	top: -0.51em;
+    bottom: 0.35em;
 }
 #top-info{
 	width: 100%;
@@ -163,7 +170,7 @@ button:hover, button:active {
 #apiKey{
 	padding: 7px 5px;
     font-size: 13pt;
-    width: 15%;
+    width: 10%;
     min-width: 100px;
     text-align: left;
     color: #888;
@@ -416,9 +423,6 @@ span#loadingClose {
 /* 모달 관련 CSS */
 /* 모달 오버레이 */
 
-#itemModal div{
-	width: 100%;
-}
 
 #itemModal.modal-overlay {
     position: fixed;
@@ -456,7 +460,9 @@ span#loadingClose {
     display: flex;
     /*gap: 20px;*/
 }
-
+#itemModal div{
+	width: 100%;
+}
 /* 왼쪽 레이아웃: 이미지와 색상 정보 */
 #itemModal .left-layout {
     display: flex;
@@ -488,7 +494,6 @@ span#loadingClose {
     object-fit: contain;
     transition: transform 0.3s ease;
     image-rendering: pixelated;
-    top: -0.7em;
 }
 
 #itemModal .zoomable-image.zoom {
@@ -527,10 +532,6 @@ span#loadingClose {
 #itemModal .color-info .rgb{
    padding-left: 1.5em;
 	
-}
-
-#modalApiImage img {
-	width : 25%;	
 }
 
 #itemModal #closeModal {
@@ -572,7 +573,8 @@ span#loadingClose {
 }
 .default_jumoney{
 	-webkit-filter: grayscale(100%); /* 크롬, 사파리 구형 */
-  	filter: grayscale(100%);
+  	filter: grayscale(100%);	
+    opacity: 0.35;
 }
 
 #itemModal .image-container2 {
@@ -581,9 +583,10 @@ span#loadingClose {
     height: 48px;
     display: inline-block;
     overflow: hidden;
-  }
+}
 
- #itemModal .loading-spinner {
+
+#itemModal .loading-spinner, .loading-spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
     border-top-color: #c2c2c2;
     border-radius: 50%;
@@ -593,9 +596,7 @@ span#loadingClose {
     position: absolute;
     top: 25%;
     left: 20%;
-}
-
- 
+} 
  
  #itemModal .image-list-sample img {
    object-fit: contain; /* 비율 유지 */
@@ -603,7 +604,7 @@ span#loadingClose {
  }
 
 
- #itemModal .loaded .loading-spinner {
+.loaded .loading-spinner {
    display: none; /* 로딩 완료 후 스피너 숨김 */
  }
  
@@ -725,6 +726,6 @@ label.timeTitle {
     opacity: 1;
 }
 
-#modalApiImage{
-	width:25%;
+.img-area .loading-spinner {
+	left: 8em;
 }
