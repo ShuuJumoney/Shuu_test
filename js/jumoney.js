@@ -1512,71 +1512,62 @@ document.addEventListener("DOMContentLoaded", function () {
         imageListSample.innerHTML = "";
 	}
 	
-	document.getElementById("captureBtn").addEventListener("click", async () => {
-	    try {
-	        // 캡처할 영역 선택 (모달 본체)
-	        const captureTarget = document.querySelector(".modal-content");
-	
-	        // 숨길 요소 임시로 숨기기 (캡처 대상에서 제외)
-	        const elementsToHide = [
-	            document.getElementById("captureBtn"),
-	            document.getElementById("closeModal")
-	        ];
-	        elementsToHide.forEach(el => el.style.display = "none");
-	
-	        // 이미지 로드가 완료될 때까지 대기
-	        const images = captureTarget.querySelectorAll("img");
-	        images.forEach((img) => {
-			    img.style.imageRendering = "pixelated";
-			});
-	        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
-	
-	        // html2canvas로 캡처
-	        const canvas = await html2canvas(captureTarget, {
-	            useCORS: true, // 크로스 오리진 문제 해결
-	            allowTaint: false, // 이미지 taint 문제 방지
-	            backgroundColor: "white",  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
-	            scale: 2, // 고해상도 캡처
-	            logging: true, // 로그로 문제 추적
-			    width: captureTarget.scrollWidth, // 요소 전체 넓이
-			    height: captureTarget.scrollHeight // 요소 전체 높이
-	        });
-	
-	        // Blob으로 변환 후 클립보드에 저장
-	        canvas.toBlob(async (blob) => {
-	            try {
-	                await navigator.clipboard.write([
-	                    new ClipboardItem({ "image/png": blob })
-	                ]);
-	                alert("클립보드에 복사되었습니다!");
-	            } catch (err) {
-					alert("클립보드 복사 실패");
-	                console.error("클립보드 복사 실패:", err);
-	            }
-	        });
-	
-	        // 숨겼던 요소 복원
-	        elementsToHide.forEach(el => el.style.display = "");
-	
-	    } catch (err) {
-			// 숨겼던 요소 복원
-	        elementsToHide.forEach(el => el.style.display = "");
-	        console.error("캡처 실패:", err);
-	    }
-	});
+document.getElementById("captureBtn").addEventListener("click", async () => {
+    try {
+        // 캡처할 영역 선택 (모달 본체)
+        const captureTarget = document.querySelector(".modal-content");
 
-	// 이미지 로드 대기 함수
-	function ensureImageLoaded(img) {
-	    return new Promise((resolve, reject) => {
-	        if (img.complete) {
-	            resolve();
-	        } else {
-	            img.onload = resolve;
-	            img.onerror = () => reject(new Error(`이미지 로드 실패: ${img.src}`));
-	        }
-	    });
-	}
+        // 숨길 요소 임시로 숨기기
+        const elementsToHide = [
+            document.getElementById("captureBtn"),
+            document.getElementById("closeModal")
+        ];
+        elementsToHide.forEach(el => el.style.display = "none");
 
+        // 이미지가 로딩될 때까지 대기
+        const images = captureTarget.querySelectorAll("img");
+        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
+
+        // dom-to-image-more로 캡처
+        const dataUrl = await domtoimage.toPng(captureTarget, {
+            quality: 1, // 최고 품질
+            width: captureTarget.scrollWidth,
+            height: captureTarget.scrollHeight,
+            style: {
+                transform: "scale1(1)", // 스케일을 2배로
+                transformOrigin: "top left", // 변환 기준 설정
+                backgroundColor: "#FFFFFF" // 하얀 배경 설정
+            }
+        });
+
+        // 데이터 URL을 Blob으로 변환 후 클립보드에 복사
+        const blob = await (await fetch(dataUrl)).blob();
+        await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob })
+        ]);
+
+        alert("모달 영역이 클립보드에 복사되었습니다!");
+
+        // 숨겼던 요소 복원
+        elementsToHide.forEach(el => el.style.display = "");
+
+    } catch (err) {
+        console.error("캡처 실패:", err);
+        alert("캡처에 실패했습니다.");
+    }
+});
+
+// 이미지 로드 대기 함수
+function ensureImageLoaded(img) {
+    return new Promise((resolve, reject) => {
+        if (img.complete && img.naturalHeight !== 0) {
+            resolve();
+        } else {
+            img.onload = resolve;
+            img.onerror = reject;
+        }
+    });
+}
 	
     closeModalButton.addEventListener("click", function () {
         modal.style.display = "none";
