@@ -1511,11 +1511,16 @@ document.addEventListener("DOMContentLoaded", function () {
         modalItemColors.innerHTML = "";
         imageListSample.innerHTML = "";
 	}
-	
 document.getElementById("captureBtn").addEventListener("click", async () => {
     try {
         // 캡처할 영역 선택 (모달 본체)
         const captureTarget = document.querySelector(".modal-content");
+
+        // 캡처 시 스타일 설정: 오버플로우 문제 방지 및 위치 고정
+        const originalStyles = captureTarget.getAttribute("style") || "";
+        captureTarget.style.position = "relative";  // 위치 고정
+        captureTarget.style.overflow = "visible";   // 캡처할 때 스크롤 문제 방지
+        //captureTarget.style.backgroundColor = "white"; // 배경을 흰색으로 설정
 
         // 숨길 요소 임시로 숨기기 (캡처 대상에서 제외)
         const elementsToHide = [
@@ -1532,7 +1537,7 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
         const canvas = await html2canvas(captureTarget, {
             useCORS: true, // 크로스 오리진 문제 해결
             allowTaint: false, // 이미지 taint 문제 방지
-            backgroundColor: "white"  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
+            backgroundColor: "white"  // 배경을 흰색으로 설정
         });
 
         // Blob으로 변환 후 클립보드에 저장
@@ -1549,6 +1554,9 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
 
         // 숨겼던 요소 복원
         elementsToHide.forEach(el => el.style.display = "");
+
+        // 원래 스타일 복원
+        captureTarget.setAttribute("style", originalStyles);
 
     } catch (err) {
         console.error("캡처 실패:", err);
