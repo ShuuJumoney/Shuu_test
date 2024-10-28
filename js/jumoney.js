@@ -1562,7 +1562,6 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
         console.error("캡처 실패:", err);
     }
 });
-
 // 이미지 로드 대기 함수
 function ensureImageLoaded(img) {
     return new Promise((resolve, reject) => {
@@ -1574,7 +1573,6 @@ function ensureImageLoaded(img) {
         }
     });
 }
-
 	
     closeModalButton.addEventListener("click", function () {
         modal.style.display = "none";
