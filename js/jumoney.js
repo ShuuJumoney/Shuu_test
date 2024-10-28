@@ -1526,6 +1526,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	
 	        // 이미지 로드가 완료될 때까지 대기
 	        const images = captureTarget.querySelectorAll("img");
+	        images.forEach((img) => {
+			    img.style.imageRendering = "pixelated";
+			});
 	        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
 	
 	        // html2canvas로 캡처
@@ -1534,6 +1537,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	            allowTaint: false, // 이미지 taint 문제 방지
 	            backgroundColor: "white",  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
 	            scale: 2, // 고해상도 캡처
+	            logging: true, // 로그로 문제 추적
+			    width: captureTarget.scrollWidth, // 요소 전체 넓이
+			    height: captureTarget.scrollHeight // 요소 전체 높이
 	        });
 	
 	        // Blob으로 변환 후 클립보드에 저장
