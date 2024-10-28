@@ -729,3 +729,26 @@ label.timeTitle {
 .img-area .loading-spinner {
 	left: 8em;
 }
+
+#captureBtn {
+    position: relative;
+    top: -1.5em;
+    padding: 2.5px;
+    width: 16px;
+    height: 16px;
+    left: 0px;
+    text-align: center;
+    font-size: 12pt;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #5e5e5e;
+    cursor: pointer;
+    float: left;
+}
+#captureBtn:hover, #closeModal:hover {
+    background: #f0f0f0;
+}
+
+#modal-btns{
+    text-align: right;
+}
