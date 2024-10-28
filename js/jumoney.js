@@ -1512,62 +1512,63 @@ document.addEventListener("DOMContentLoaded", function () {
         imageListSample.innerHTML = "";
 	}
 	
-document.getElementById("captureBtn").addEventListener("click", async () => {
-    try {
-        // 캡처할 영역 선택 (모달 본체)
-        const captureTarget = document.querySelector(".modal-content");
+	document.getElementById("captureBtn").addEventListener("click", async () => {
+	    try {
+	        // 캡처할 영역 선택 (모달 본체)
+	        const captureTarget = document.querySelector(".modal-content");
+	
+	        // 숨길 요소 임시로 숨기기
+	        const elementsToHide = [
+	            document.getElementById("captureBtn"),
+	            document.getElementById("closeModal")
+	        ];
+	        elementsToHide.forEach(el => el.style.display = "none");
+	
+	        // 이미지가 로딩될 때까지 대기
+	        const images = captureTarget.querySelectorAll("img");
+	        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
+	
+	        // dom-to-image-more로 캡처
+	        const dataUrl = await domtoimage.toPng(captureTarget, {
+	            quality: 1, // 최고 품질
+	            width: captureTarget.scrollWidth - 20,
+	            height: captureTarget.scrollHeight,
+	            style: {
+	                transform: "scale1(1)", // 스케일을 2배로
+	                transformOrigin: "top left", // 변환 기준 설정
+	                backgroundColor: "#FFFFFF" // 하얀 배경 설정
+	            }
+	        });
+	
+	        // 데이터 URL을 Blob으로 변환 후 클립보드에 복사
+	        const blob = await (await fetch(dataUrl)).blob();
+	        await navigator.clipboard.write([
+	            new ClipboardItem({ "image/png": blob })
+	        ]);
+	
+	        alert("모달 영역이 클립보드에 복사되었습니다!");
+	
+	        // 숨겼던 요소 복원
+	        elementsToHide.forEach(el => el.style.display = "");
+	
+	    } catch (err) {
+	        console.error("캡처 실패:", err);
+	        alert("캡처에 실패했습니다.");
+	    }
+	});
+	
+	// 이미지 로드 대기 함수
+	function ensureImageLoaded(img) {
+	    return new Promise((resolve, reject) => {
+	        if (img.complete) {
+	            resolve();
+	        } else {
+	            img.onload = resolve;
+	            img.onerror = reject;
+	        }
+	    });
+	}
 
-        // 숨길 요소 임시로 숨기기
-        const elementsToHide = [
-            document.getElementById("captureBtn"),
-            document.getElementById("closeModal")
-        ];
-        elementsToHide.forEach(el => el.style.display = "none");
-
-        // 이미지가 로딩될 때까지 대기
-        const images = captureTarget.querySelectorAll("img");
-        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
-
-        // dom-to-image-more로 캡처
-        const dataUrl = await domtoimage.toPng(captureTarget, {
-            quality: 1, // 최고 품질
-            width: captureTarget.scrollWidth,
-            height: captureTarget.scrollHeight,
-            style: {
-                transform: "scale1(1)", // 스케일을 2배로
-                transformOrigin: "top left", // 변환 기준 설정
-                backgroundColor: "#FFFFFF" // 하얀 배경 설정
-            }
-        });
-
-        // 데이터 URL을 Blob으로 변환 후 클립보드에 복사
-        const blob = await (await fetch(dataUrl)).blob();
-        await navigator.clipboard.write([
-            new ClipboardItem({ "image/png": blob })
-        ]);
-
-        alert("모달 영역이 클립보드에 복사되었습니다!");
-
-        // 숨겼던 요소 복원
-        elementsToHide.forEach(el => el.style.display = "");
-
-    } catch (err) {
-        console.error("캡처 실패:", err);
-        alert("캡처에 실패했습니다.");
-    }
-});
-
-// 이미지 로드 대기 함수
-function ensureImageLoaded(img) {
-    return new Promise((resolve, reject) => {
-        if (img.complete && img.naturalHeight !== 0) {
-            resolve();
-        } else {
-            img.onload = resolve;
-            img.onerror = reject;
-        }
-    });
-}
 	
     closeModalButton.addEventListener("click", function () {
         modal.style.display = "none";
