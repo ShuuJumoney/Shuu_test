@@ -1512,60 +1512,63 @@ document.addEventListener("DOMContentLoaded", function () {
         imageListSample.innerHTML = "";
 	}
 	
-document.getElementById("captureBtn").addEventListener("click", async () => {
-    try {
-        // 캡처할 영역 선택 (모달 본체)
-        const captureTarget = document.querySelector(".modal-content");
+	document.getElementById("captureBtn").addEventListener("click", async () => {
+	    try {
+	        // 캡처할 영역 선택 (모달 본체)
+	        const captureTarget = document.querySelector(".modal-content");
+	
+	        // 숨길 요소 임시로 숨기기 (캡처 대상에서 제외)
+	        const elementsToHide = [
+	            document.getElementById("captureBtn"),
+	            document.getElementById("closeModal")
+	        ];
+	        elementsToHide.forEach(el => el.style.display = "none");
+	
+	        // 이미지 로드가 완료될 때까지 대기
+	        const images = captureTarget.querySelectorAll("img");
+	        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
+	
+	        // html2canvas로 캡처
+	        const canvas = await html2canvas(captureTarget, {
+	            useCORS: true, // 크로스 오리진 문제 해결
+	            allowTaint: false, // 이미지 taint 문제 방지
+	            backgroundColor: "white"  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
+	        });
+	
+	        // Blob으로 변환 후 클립보드에 저장
+	        canvas.toBlob(async (blob) => {
+	            try {
+	                await navigator.clipboard.write([
+	                    new ClipboardItem({ "image/png": blob })
+	                ]);
+	                alert("클립보드에 복사되었습니다!");
+	            } catch (err) {
+					alert("클립보드 복사 실패");
+	                console.error("클립보드 복사 실패:", err);
+	            }
+	        });
+	
+	        // 숨겼던 요소 복원
+	        elementsToHide.forEach(el => el.style.display = "");
+	
+	    } catch (err) {
+			// 숨겼던 요소 복원
+	        elementsToHide.forEach(el => el.style.display = "");
+	        console.error("캡처 실패:", err);
+	    }
+	});
 
-        // 숨길 요소 임시로 숨기기 (캡처 대상에서 제외)
-        const elementsToHide = [
-            document.getElementById("captureBtn"),
-            document.getElementById("closeModal")
-        ];
-        elementsToHide.forEach(el => el.style.display = "none");
-
-        // 이미지 로드가 완료될 때까지 대기
-        const images = captureTarget.querySelectorAll("img");
-        await Promise.all(Array.from(images).map(img => ensureImageLoaded(img)));
-
-        // html2canvas로 캡처
-        const canvas = await html2canvas(captureTarget, {
-            useCORS: true, // 크로스 오리진 문제 해결
-            allowTaint: false, // 이미지 taint 문제 방지
-            backgroundColor: "white"  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
-        });
-
-        // Blob으로 변환 후 클립보드에 저장
-        canvas.toBlob(async (blob) => {
-            try {
-                await navigator.clipboard.write([
-                    new ClipboardItem({ "image/png": blob })
-                ]);
-                alert("모달 영역이 클립보드에 복사되었습니다!");
-            } catch (err) {
-                console.error("클립보드 복사 실패:", err);
-            }
-        });
-
-        // 숨겼던 요소 복원
-        elementsToHide.forEach(el => el.style.display = "");
-
-    } catch (err) {
-        console.error("캡처 실패:", err);
-    }
-});
-
-// 이미지 로드 대기 함수
-function ensureImageLoaded(img) {
-    return new Promise((resolve, reject) => {
-        if (img.complete) {
-            resolve();
-        } else {
-            img.onload = resolve;
-            img.onerror = () => reject(new Error(`이미지 로드 실패: ${img.src}`));
-        }
-    });
-}
+	// 이미지 로드 대기 함수
+	function ensureImageLoaded(img) {
+	    return new Promise((resolve, reject) => {
+	        if (img.complete) {
+	            resolve();
+	        } else {
+	            img.onload = resolve;
+	            img.onerror = () => reject(new Error(`이미지 로드 실패: ${img.src}`));
+	        }
+	    });
+	}
 
 	
     closeModalButton.addEventListener("click", function () {
