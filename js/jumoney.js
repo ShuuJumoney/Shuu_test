@@ -1532,7 +1532,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	        const canvas = await html2canvas(captureTarget, {
 	            useCORS: true, // 크로스 오리진 문제 해결
 	            allowTaint: false, // 이미지 taint 문제 방지
-	            backgroundColor: "white"  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
+	            backgroundColor: "white",  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
+	            scale: 2, // 고해상도 캡처
 	        });
 	
 	        // Blob으로 변환 후 클립보드에 저장
