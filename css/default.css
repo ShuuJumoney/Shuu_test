@@ -536,15 +536,14 @@ span#loadingClose {
 
 #itemModal #closeModal {
     text-align: center;
-    display: inline;
+    display: inline-block;
     width: 20px;
     height: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
     line-height: 18px;
     position: relative;
-    left: 97.5%;
-    top: -24px;
+    top: -1.55em;
     cursor: pointer;
 }
 .image-copy-container{
@@ -732,7 +731,7 @@ label.timeTitle {
 
 #captureBtn {
     position: relative;
-    top: -1.5em;
+    top: -1.45em;
     padding: 2.5px;
     width: 16px;
     height: 16px;
