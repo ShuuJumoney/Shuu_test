@@ -1515,7 +1515,7 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById("captureBtn").addEventListener("click", async () => {
     try {
         // 캡처할 영역 선택 (모달 본체)
-        const captureTarget = document.querySelector(".modal-body");
+        const captureTarget = document.querySelector(".modal-content");
 
         // 숨길 요소 임시로 숨기기 (캡처 대상에서 제외)
         const elementsToHide = [
@@ -1532,7 +1532,7 @@ document.getElementById("captureBtn").addEventListener("click", async () => {
         const canvas = await html2canvas(captureTarget, {
             useCORS: true, // 크로스 오리진 문제 해결
             allowTaint: false, // 이미지 taint 문제 방지
-            backgroundColor: null // 투명 배경 유지
+            backgroundColor: "white"  // 투명 하얗게 // 투명은 붙여넣기 하면 검정.
         });
 
         // Blob으로 변환 후 클립보드에 저장
