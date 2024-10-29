@@ -1,5 +1,11 @@
 const axios = require('axios');
-
+// Axios 인스턴스 생성 (Keep-Alive 설정)
+const axiosInstance = axios.create({
+  timeout: 5000, // 요청 타임아웃 설정 (5초)
+  headers: {
+    Connection: 'keep-alive',
+  },
+});
 // 캐시 데이터와 만료 시간 설정
 let cache = {};
 let cacheExpiration = 0; // 캐시 만료 타임스탬프
