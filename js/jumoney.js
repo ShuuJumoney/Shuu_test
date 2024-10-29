@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	async function getNpcData() {
-		if(API_KEY == "" || !SHARE_KEY) {
+		if(API_KEY == "" && !SHARE_KEY) {
 			alert("API KEY를 입력해주세요");
 			return false;
 		}
