@@ -86,13 +86,13 @@ document.addEventListener("DOMContentLoaded", function () {
 	let dataCache = {};
 	let nextResetTime = null;  // 전역 리셋 시간
 	let API_KEY = "";
+	let SHARE_KEY = false;
 	let imageCache = new Map();
 	
 	let lastRequestTime = 0; // 마지막 요청 시간 추적
 	let requestCount = 0; // 현재 초의 호출 횟수
 	let inProgressCalls = new Set(); // 진행 중인 호출을 저장
 	let isCheckingServers = false; // 진행 상태 플래그
-	let SHARE_KEY = false;
 	
 	async function throttle() {
 	  const now = Date.now();
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	  document.getElementById("ch").value = localChannel;
 	
 	if (localNpc)
-	  document.getElementById("npc_nm").value = localNpc;		  
+	  document.getElementById("npc_nm").value = localNpc;
 	  
 	// 체크박스의 상태가 변경될 때 SHARE_KEY 값을 변경합니다.
 	const checkbox = document.getElementById('shareKey');
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
 			SHARE_KEY = false;  // 체크 해제하면 false
 			console.log('공용키 사용 비활성화: ', SHARE_KEY);
 		}
-	});
+	});	  
 	
 	setChannel(); //localServer 설정 한 후에		
 	prevNextCh();
@@ -181,11 +181,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			chSelect.appendChild(option);
 		}
 				
-		if(API_KEY != "") chSelect.dispatchEvent(new Event('change'));
+		if(API_KEY != "" || SHARE_KEY) chSelect.dispatchEvent(new Event('change'));
 	}
 
 	async function getNpcData() {
-		if(API_KEY == "") {
+		if(API_KEY == "" || !SHARE_KEY) {
 			alert("API KEY를 입력해주세요");
 			return false;
 		}
@@ -1123,13 +1123,12 @@ document.addEventListener("DOMContentLoaded", function () {
     	const cacheKey = `${npc}_${server}_${channel}`; // 중복 호출을 피하기 위한 캐시키 생성 //호출 횟수 아껴야함...ㅠㅠ
         let url = `https://open.api.nexon.com/mabinogi/v1/npcshop/list?npc_name=${npc}&server_name=${server}&channel=${channel}`;
         if(SHARE_KEY) url = `https://shuu-test-shuus-projects-28c29ca9.vercel.app/api/fetchNpcData?npc=${npc}&server=${server}&channel=${channel}`;
-	console.log(SHARE_KEY);
-	    console.log(url);
 		// 이미 진행 중인 호출인지 확인
 		if (inProgressCalls.has(cacheKey)) {
 			console.log(`이미 진행 중인 호출: ${cacheKey}`);
 			return; // 중복 호출 방지
 		}
+        
   		// 호출 진행 중임을 기록
  		inProgressCalls.add(cacheKey);
 
@@ -1160,7 +1159,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         try {
 			// API 키가 "test"로 시작하면 호출 제한 적용
-		    if (API_KEY.startsWith("test")) {
+		    if (API_KEY.startsWith("test") && !SHARE_KEY) {
 		      await throttle();
 		    }
 		    
@@ -1568,7 +1567,10 @@ document.addEventListener("DOMContentLoaded", function () {
 	    try {
 	        // 캡처할 영역 선택 (모달 본체)
 	        const captureTarget = document.querySelector(".modal-content");
-	
+			
+	        // 레이아웃 렌더링 완료 후 캡처 실행
+	        await new Promise((resolve) => requestAnimationFrame(resolve));
+
 	        // 숨길 요소 임시로 숨기기
 	        const elementsToHide = [
 	            document.getElementById("captureBtn"),
@@ -1598,7 +1600,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	            new ClipboardItem({ "image/png": blob })
 	        ]);
 	
-	        alert("모달 영역이 클립보드에 복사되었습니다!");
+	        alert("클립보드에 이미지가 복사되었습니다!");
 	
 	        // 숨겼던 요소 복원
 	        elementsToHide.forEach(el => el.style.display = "");
