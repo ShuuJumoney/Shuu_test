@@ -1169,7 +1169,9 @@ document.addEventListener("DOMContentLoaded", function () {
             	data = await response.json();
             }else{
 				response = await fetch(url);
-    			data = await response.json();    			
+    			data = await response.json();   
+				console.log(data);
+				data = data.data;
 			}	
             	
             if (!response.ok || !data.shop) {
