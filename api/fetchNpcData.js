@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://shuujumoney.github.io'); // CORS 허용
   res.setHeader('Access-Control-Allow-Methods', 'GET'); // 허용 메소드
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type'); // 허용 헤더
-
+  console.log("vercel");
   const { npc, server, channel } = req.query;
   const cacheKey = `${npc}_${server}_${channel}`;
 
