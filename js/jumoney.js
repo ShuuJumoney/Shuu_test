@@ -1163,74 +1163,46 @@ document.addEventListener("DOMContentLoaded", function () {
 		      await throttle();
 		    }
 		    
+		let response, data;
 			if( !SHARE_KEY ) { 
-            	const response = await fetch(url, { headers: { "x-nxopen-api-key": API_KEY } });
-            	const data = await response.json();
-            	
-            	
-	            if (!response.ok || !data.shop) {
-					const errorName = data.error.name;
-					const errorMessage = getErrorMessage(errorName);
-					alert(errorName+"\n"+errorMessage.join("\n"));
-	            	console.error(errorName + ": " + data.error.message);
-	            	document.getElementById("loading").style.display = "none";
-	            	document.getElementById("results").innerHTML = errorName+"<br/>"+errorMessage[0] + "<br/>" + errorMessage[1];
-	            	return data;
-	            }else{
-					document.getElementById("results").innerHTML = "";	
-				
-	            
-		            //리셋 시간 변경 됐을 경우만 저장
-		            if (!nextResetTime || new Date(data.date_shop_next_update) > nextResetTime ) {
-		                nextResetTime = new Date(data.date_shop_next_update);
-		                setTime(nextResetTime);
-		                console.log(`다음 리셋 시간 갱신: ${nextResetTime}`);
-		            }
-		            
-		        	// 주머니 데이터 추출 및 캐시에 저장
-		            const items = data.shop.filter(shop => shop.tab_name === "주머니").flatMap(shop => shop.item);
-		            dataCache[cacheKey] = items;  // 캐시에 저장
-		            
-		            completeCnt += 1;
-		            setCompleteCnt();
-		            
-		            return items;
-	            }
+            	response = await fetch(url, { headers: { "x-nxopen-api-key": API_KEY } });
+            	data = await response.json();
             }else{
-				const response = await fetch(url);
-    			const result = await response.json();
-    			console.log(result);
-    			if( result.error ) {
-					const errorName = result.error.name;
-					const errorMessage = getErrorMessage(errorName);
-					alert(errorName+"\n"+errorMessage.join("\n"));
-	            	console.error(errorName + ": " + data.error.message);
-	            	document.getElementById("loading").style.display = "none";
-	            	document.getElementById("results").innerHTML = errorName+"<br/>"+errorMessage[0] + "<br/>" + errorMessage[1];
-	            	return result.error;
-				}else{
-					document.getElementById("results").innerHTML = "";
+				response = await fetch(url);
+    			data = await response.json();    			
+			}	
+            	
+            if (!response.ok || !data.shop) {
+				const errorName = data.error.name;
+				const errorMessage = getErrorMessage(errorName);
+				alert(errorName+"\n"+errorMessage.join("\n"));
+            	console.error(errorName + ": " + data.error.message);
+            	document.getElementById("loading").style.display = "none";
+            	document.getElementById("results").innerHTML = errorName+"<br/>"+errorMessage[0] + "<br/>" + errorMessage[1];
+            	return data;
+            }else{
+				document.getElementById("results").innerHTML = "";	
+			
+            
+	            //리셋 시간 변경 됐을 경우만 저장
+	            if (!nextResetTime || new Date(data.date_shop_next_update) > nextResetTime ) {
+	                nextResetTime = new Date(data.date_shop_next_update);
+	                setTime(nextResetTime);
+	                console.log(`다음 리셋 시간 갱신: ${nextResetTime}`);
+	            }
 	            
-		            //리셋 시간 변경 됐을 경우만 저장
-		            if (!nextResetTime || new Date(data.date_shop_next_update) > nextResetTime ) {
-		                nextResetTime = new Date(data.date_shop_next_update);
-		                setTime(nextResetTime);
-		                console.log(`다음 리셋 시간 갱신: ${nextResetTime}`);
-		            }
-		            
-		        	// 주머니 데이터 추출 및 캐시에 저장
-			console.log("result: ");
-		        	console.log(result);
-		            const items = result.data;
-		            dataCache[cacheKey] = items;  // 캐시에 저장
-		            
-		            completeCnt += 1;
-		            setCompleteCnt();
-		            
-		            return items;
-				}
-			}
-            //checkSync(data.date_inquire); // 서버시간 동기화
+	        	// 주머니 데이터 추출 및 캐시에 저장
+	            const items = data.shop.filter(shop => shop.tab_name === "주머니").flatMap(shop => shop.item);
+	            dataCache[cacheKey] = items;  // 캐시에 저장
+	            
+	            completeCnt += 1;
+	            setCompleteCnt();
+	            
+	            return items;
+            }
+		}
+	}
+//checkSync(data.date_inquire); // 서버시간 동기화
             
         } catch (error) {
             console.error(`API 호출 실패: ${error.message}`);
