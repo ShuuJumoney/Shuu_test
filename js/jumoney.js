@@ -1117,7 +1117,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			console.log(`이미 진행 중인 호출: ${cacheKey}`);
 			return; // 중복 호출 방지
 		}
-        
   		// 호출 진행 중임을 기록
  		inProgressCalls.add(cacheKey);
 
