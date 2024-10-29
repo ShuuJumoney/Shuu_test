@@ -1219,6 +1219,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		            }
 		            
 		        	// 주머니 데이터 추출 및 캐시에 저장
+			console.log("result: ");
+		        	console.log(result);
 		            const items = result.data;
 		            dataCache[cacheKey] = items;  // 캐시에 저장
 		            
