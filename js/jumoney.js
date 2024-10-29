@@ -1163,7 +1163,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		      await throttle();
 		    }
 		    
-		let response, data;
+		    let response, data;
 			if( !SHARE_KEY ) { 
             	response = await fetch(url, { headers: { "x-nxopen-api-key": API_KEY } });
             	data = await response.json();
@@ -1200,9 +1200,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	            
 	            return items;
             }
-		}
-	}
-//checkSync(data.date_inquire); // 서버시간 동기화
+            
+            //checkSync(data.date_inquire); // 서버시간 동기화
             
         } catch (error) {
             console.error(`API 호출 실패: ${error.message}`);
