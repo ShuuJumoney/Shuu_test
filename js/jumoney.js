@@ -1111,7 +1111,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let url = `https://open.api.nexon.com/mabinogi/v1/npcshop/list?npc_name=${npc}&server_name=${server}&channel=${channel}`;
         if(SHARE_KEY) url = `https://shuu-test-shuus-projects-28c29ca9.vercel.app/api/fetchNpcData?npc=${npc}&server=${server}&channel=${channel}`;
 	console.log(SHARE_KEY);
-	    console.log(url)l
+	    console.log(url);
 		// 이미 진행 중인 호출인지 확인
 		if (inProgressCalls.has(cacheKey)) {
 			console.log(`이미 진행 중인 호출: ${cacheKey}`);
