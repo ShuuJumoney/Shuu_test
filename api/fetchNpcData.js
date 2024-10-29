@@ -57,14 +57,13 @@ module.exports = async (req, res) => {
     if (!response.data.shop) {
       const errorMessage = response.data.error.message || 'NPC 데이터를 찾을 수 없습니다.';
       console.error(`에러 발생: ${errorMessage}`);
-      console.log(response);
       return res.status(404).json({
         name: response.data.error.name,
         message: errorMessage,
         status: 404,
       });
     }
-
+/*
     const items = response.data.shop
       .filter(shop => shop.tab_name === '주머니')
       .flatMap(shop => shop.item);
@@ -72,9 +71,13 @@ module.exports = async (req, res) => {
     // 캐시 저장 및 만료 시간 설정
     cache[cacheKey] = items;
     cacheExpiration = getNextCacheExpiration(); // 다음 갱신 시각 설정
+*/
+    // 캐시 저장 및 만료 시간 설정
+    cache[cacheKey] = response.data;
+    cacheExpiration = getNextCacheExpiration(); // 다음 갱신 시각 설정
 
     console.log(`API 데이터 저장: ${cacheKey}`);
-    return res.status(200).json({ data: items, source: 'api' });
+    return res.status(200).json({ data: response.data, source: 'api' });
   } catch (error) {
      console.error(`API 호출 실패: ${error.message}`);
 
