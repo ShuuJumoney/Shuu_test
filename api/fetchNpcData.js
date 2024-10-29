@@ -18,10 +18,23 @@ function getNextCacheExpiration() {
   return expirationTime.getTime();
 }
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://shuujumoney.github.io'); // CORS 허용
+// 공통 CORS 헤더 설정 함수
+function setCorsHeaders(res) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://shuujumoney.github.io'); // 허용할 도메인
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
+module.exports = async (req, res) => {
+  
+   // OPTIONS 요청 처리
+  if (req.method === 'OPTIONS') {
+    setCorsHeaders(res);
+    return res.status(204).end(); // preflight 요청에 대한 응답
+  }
+
+  setCorsHeaders(res); // 모든 요청에 CORS 헤더 추가
+
   console.log("vercel");
   const { npc, server, channel } = req.query;
   const cacheKey = `${npc}_${server}_${channel}`;
