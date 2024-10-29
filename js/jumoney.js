@@ -1109,7 +1109,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function fetchNpcData(npc, server, channel) {
     	const cacheKey = `${npc}_${server}_${channel}`; // 중복 호출을 피하기 위한 캐시키 생성 //호출 횟수 아껴야함...ㅠㅠ
         let url = `https://open.api.nexon.com/mabinogi/v1/npcshop/list?npc_name=${npc}&server_name=${server}&channel=${channel}`;
-        if(SHARE_KEY) url = `https://jumoney-shuus-projects-28c29ca9.vercel.app/api/fetchNpcData?npc=${npc}&server=${server}&channel=${channel}`;
+        if(SHARE_KEY) url = `https://shuu-test-shuus-projects-28c29ca9.vercel.app/api/fetchNpcData?npc=${npc}&server=${server}&channel=${channel}`;
 		// 이미 진행 중인 호출인지 확인
 		if (inProgressCalls.has(cacheKey)) {
 			console.log(`이미 진행 중인 호출: ${cacheKey}`);
