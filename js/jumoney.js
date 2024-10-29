@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	let requestCount = 0; // 현재 초의 호출 횟수
 	let inProgressCalls = new Set(); // 진행 중인 호출을 저장
 	let isCheckingServers = false; // 진행 상태 플래그
-	let SHARE_KEY = true;
+	let SHARE_KEY = false;
 	
 	async function throttle() {
 	  const now = Date.now();
@@ -136,6 +136,19 @@ document.addEventListener("DOMContentLoaded", function () {
 	
 	if (localNpc)
 	  document.getElementById("npc_nm").value = localNpc;		  
+	  
+	// 체크박스의 상태가 변경될 때 SHARE_KEY 값을 변경합니다.
+	const checkbox = document.getElementById('shareKey');
+
+	checkbox.addEventListener('change', function() {
+		if (checkbox.checked) {
+			SHARE_KEY = true;  // 체크되면 true
+			console.log('공용키 사용 활성화: ', SHARE_KEY);
+		} else {
+			SHARE_KEY = false;  // 체크 해제하면 false
+			console.log('공용키 사용 비활성화: ', SHARE_KEY);
+		}
+	});
 	
 	setChannel(); //localServer 설정 한 후에		
 	prevNextCh();
