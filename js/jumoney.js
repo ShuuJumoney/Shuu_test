@@ -1199,7 +1199,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }else{
 				const response = await fetch(url);
     			const result = await response.json();
-    			
+    			console.log(result);
     			if( result.error ) {
 					const errorName = result.error.name;
 					const errorMessage = getErrorMessage(errorName);
