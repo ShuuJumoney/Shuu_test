@@ -55,11 +55,11 @@ module.exports = async (req, res) => {
     });
 
     if (!response.data.shop) {
-      const errorMessage = response.data.error.message || 'NPC 데이터를 찾을 수 없습니다.';
+      const errorMessage = response.error.message || 'NPC 데이터를 찾을 수 없습니다.';
       console.error(`에러 발생: ${errorMessage}`);
-
+      console.log(response);
       return res.status(404).json({
-        name: response.data.error.name',
+        name: response.error.name',
         message: errorMessage,
         status: 404,
       });
