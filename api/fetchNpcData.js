@@ -1,116 +1,82 @@
 const axios = require('axios');
-// Axios 인스턴스 생성 (Keep-Alive 설정)
-const axiosInstance = axios.create({
-  timeout: 5000, // 요청 타임아웃 설정 (5초)
-  headers: {
-    Connection: 'keep-alive',
-  },
-});
-// 캐시 데이터와 만료 시간 설정
-let cache = {};
-let cacheExpiration = 0; // 캐시 만료 타임스탬프
+const Redis = require('ioredis'); // Redis 사용
 
-function getNextCacheExpiration() {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+// Redis 인스턴스 생성 (Upstash Redis URL 사용)
+const redis = new Redis(process.env.REDIS_URL);
 
-  // 36분마다 갱신되는 시각 계산
-  const refreshIntervals = Array.from({ length: 40 }, (_, i) => i * 36);
-  const nextRefresh = refreshIntervals.find(interval => interval > currentMinutes) || 1440; // 자정 처리
-
-  const expirationTime = new Date(now);
-  expirationTime.setHours(0, nextRefresh, 0, 0); // 다음 만료 시각 설정
-
-  return expirationTime.getTime();
-}
-
-// 공통 CORS 헤더 설정 함수
+// CORS 헤더 설정
 function setCorsHeaders(res) {
-  res.setHeader('Access-Control-Allow-Origin', 'https://shuujumoney.github.io'); // 허용할 도메인
+  res.setHeader('Access-Control-Allow-Origin', 'https://shuujumoney.github.io');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
+// 다음 캐시 만료 시간 계산
+function getNextCacheExpiration() {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const refreshIntervals = Array.from({ length: 40 }, (_, i) => i * 36);
+  const nextRefresh = refreshIntervals.find(interval => interval > currentMinutes) || 1440;
+
+  const expirationTime = new Date(now);
+  expirationTime.setHours(0, nextRefresh, 0, 0);
+  return expirationTime.getTime();
+}
+
 module.exports = async (req, res) => {
-  
-   // OPTIONS 요청 처리
   if (req.method === 'OPTIONS') {
     setCorsHeaders(res);
-    return res.status(204).end(); // preflight 요청에 대한 응답
+    return res.status(204).end();
   }
 
-  setCorsHeaders(res); // 모든 요청에 CORS 헤더 추가
+  setCorsHeaders(res);
 
-  console.log("vercel");
   const { npc, server, channel } = req.query;
-  const cacheKey = `${npc}_${server}_${channel}`;
-
-  // 캐시 유효성 검사
-  const now = Date.now();
-  if (cache[cacheKey] && now < cacheExpiration) {
-    console.log(`캐시 사용: ${cacheKey}`);
-    return res.status(200).json({ data: cache[cacheKey], source: 'cache' });
-  }
+  const cacheKey = `${npc}:${server}:${channel}`;
 
   try {
-    const API_KEY = process.env.API_KEY; // Vercel 환경 변수에서 API 키 가져오기
+    // Redis에서 캐시 조회
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log(`Redis 캐시 사용: ${cacheKey}`);
+      return res.status(200).json({ data: JSON.parse(cachedData), source: 'cache' });
+    }
+
+    // API 호출
+    const API_KEY = process.env.API_KEY;
     const url = `https://open.api.nexon.com/mabinogi/v1/npcshop/list?npc_name=${npc}&server_name=${server}&channel=${channel}`;
 
+    console.time(`API 호출 시간: ${cacheKey}`);
     const response = await axios.get(url, {
       headers: { 'x-nxopen-api-key': API_KEY },
     });
+    console.timeEnd(`API 호출 시간: ${cacheKey}`);
 
     if (!response.data.shop) {
-      const errorMessage = response.data.error.message || 'NPC 데이터를 찾을 수 없습니다.';
+      const errorMessage = response.data.error?.message || 'NPC 데이터를 찾을 수 없습니다.';
       console.error(`에러 발생: ${errorMessage}`);
       return res.status(404).json({
-        name: response.data.error.name,
+        name: response.data.error.name || 'NotFoundError',
         message: errorMessage,
         status: 404,
       });
     }
-/*
-    const items = response.data.shop
-      .filter(shop => shop.tab_name === '주머니')
-      .flatMap(shop => shop.item);
 
-    // 캐시 저장 및 만료 시간 설정
-    cache[cacheKey] = items;
-    cacheExpiration = getNextCacheExpiration(); // 다음 갱신 시각 설정
-*/
-    // 캐시 저장 및 만료 시간 설정
-    cache[cacheKey] = response.data;
-    cacheExpiration = getNextCacheExpiration(); // 다음 갱신 시각 설정
+    // 전체 데이터를 캐시하고 반환
+    const items = response.data;
+
+    // Redis에 캐시 저장 (TTL 36분)
+    await redis.set(cacheKey, JSON.stringify(items), 'EX', 36 * 60);
 
     console.log(`API 데이터 저장: ${cacheKey}`);
-    return res.status(200).json({ data: response.data, source: 'api' });
+    return res.status(200).json({ data: items, source: 'api' });
   } catch (error) {
-     console.error(`API 호출 실패: ${error.message}`);
-
+    console.error(`API 호출 실패: ${error.message}`);
     const errorResponse = {
       name: error.name || 'APIError',
       message: error.response?.data?.message || error.message || '알 수 없는 오류',
       status: error.response?.status || 500,
     };
+    return res.status(errorResponse.status).json(errorResponse);
   }
 };
-
-function getNextCacheExpiration() {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  // 36분마다 캐시 갱신 시점 (총 40회)
-  const refreshIntervals = Array.from({ length: 40 }, (_, i) => i * 36);
-
-  // 현재 시간 이후에 해당하는 다음 갱신 시각 찾기
-  const nextRefresh = refreshIntervals.find(interval => interval > currentMinutes);
-
-  const nextExpirationMinutes = nextRefresh !== undefined ? nextRefresh : 1440; // 자정(1440분)으로 초기화
-
-  const expirationTime = new Date(now);
-  expirationTime.setHours(0, nextExpirationMinutes, 0, 0); // 갱신 시각 설정
-
-  return expirationTime.getTime(); // 타임스탬프로 반환
-}
-
-
